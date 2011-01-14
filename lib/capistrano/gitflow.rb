@@ -39,7 +39,7 @@ module Capistrano
                                1
                              end
 
-            "#{stage}-#{hwhen}-#{new_tag_serial}-#{who}-#{what}"
+            "#{stage_as}-#{hwhen}-#{new_tag_serial}-#{who}-#{what}"
           end
 
           def last_production_tag()
@@ -75,7 +75,7 @@ Please make sure you have pulled and pushed all code before deploying:
               # make sure we have any other deployment tags that have been pushed by others so our auto-increment code doesn't create conflicting tags
               `git fetch`
 
-              send "tag_#{stage}" if respond_to?(stage)
+              send "tag_#{stage_as}" #if respond_to?(stage)
 
               system "git push --tags origin #{local_branch}"
               if $? != 0
@@ -86,24 +86,24 @@ Please make sure you have pulled and pushed all code before deploying:
 
           desc "Show log between most recent staging tag (or given tag=XXX) and last production release."
           task :commit_log do
-            from_tag = if stage == :production
+            from_tag = if stage_as == :production
                          last_production_tag
-                       elsif stage == :staging
+                       elsif stage_as == :staging
                          last_staging_tag
                        else
-                         abort "Unsupported stage #{stage}"
+                         abort "Unsupported stage #{stage_as}"
                        end
 
             # no idea how to properly test for an optional cap argument a la '-s tag=x'
             to_tag = capistrano_configuration[:tag]
             to_tag ||= begin 
-                         puts "Calculating 'end' tag for :commit_log for '#{stage}'"
-                         to_tag = if stage == :production
+                         puts "Calculating 'end' tag for :commit_log for '#{stage_as}'"
+                         to_tag = if stage_as == :production
                                     last_staging_tag
-                                  elsif stage == :staging
+                                  elsif stage_as == :staging
                                     'master'
                                   else
-                                    abort "Unsupported stage #{stage}"
+                                    abort "Unsupported stage #{stage_as}"
                                   end
                        end
 
